@@ -1,16 +1,24 @@
 import axios from 'axios'
-import './App.css'
+import ReactPaginate from 'react-paginate';
+
+
 import React, { useEffect, useState } from 'react'
 
-const App = () => {
+const Pagination = () => {
     const [user , setUser]=useState([]);
     const [name , setName]= useState('')
     const [ram , setRam]= useState('asc')
     const [munna , setMunna]= useState('')
+  
+    
+    // pagination
+    const [data , setData]=useState(1)
+    const [count , setCount]= useState('')
+
     
     useEffect(()=>{
         const bodyFormData = new FormData();
-        bodyFormData.append("page",0)
+        bodyFormData.append("page",data)
         bodyFormData.append("filter",munna)
         bodyFormData.append("type",ram)
         bodyFormData.append("user_type",'admin')
@@ -19,18 +27,58 @@ const App = () => {
        
 
         axios.post(`https://www.eliquidremix.com/panel/api/show-recipes`,bodyFormData).then((res)=>{
-            console.log(res)
+           
             setUser(res?.data?.data)
+           setCount(res?.data?.total_count)
+           
         })
-    },[name , ram , munna])
+    },[name , ram , munna , data])
+
+;
+    // console.log(count);
+    const Total = user.length;
+    console.log('total data per page =' +   Total);
     
+    const handlePageClick=(data)=>{
+       
+      
+            setData(data.selected);
 
-
+        
+      
+      }
 
 
   return (
     <>
      <h1>{ram}</h1>
+     <div>
+     <ReactPaginate
+    previousLabel={'Previous'}
+    nextLabel={'Next'}
+    breakLabel={"..."}
+    pageCount={count /20}
+    marginPagesDisplayed={3}
+    pageRangeDisplayed={2}
+    onPageChange={handlePageClick}
+    renderOnZeroPageCount={null}
+    // css apply on pagination
+    containerClassName={'pagination justify-content-center py-3'}
+    pageClassName={'page-item'}
+    pageLinkClassName={'page-link'}
+    previousClassName={'page-item'}
+    previousLinkClassName={'page-link'}
+    nextClassName={'page-item'}
+    nextLinkClassName={'page-link'}
+    breakClassName={'page-item'}
+    breakLinkClassName={'page-link'}
+    activeClassName={'active'}
+
+    />
+    
+     </div>
+
+  
     <div className='container'>
       <div className='row'>
         <div className='col'>
@@ -76,11 +124,12 @@ const App = () => {
     user.map((values , index)=>{
       return(
         <>
-    <div className='container'>
+    <div className='container'  key={values.ID}>
         <div className='row'>
           <div className='col'>
             <div className='card'>
               <div className='card-body'>
+                <h1>{values.ID}</h1>
                 <img src={values.recipe_image} alt="..."
                 />
                 <div className='card-title'>
@@ -119,4 +168,4 @@ const App = () => {
   )
 }
 
-export default App
+export default Pagination
